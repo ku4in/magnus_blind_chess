@@ -46,7 +46,7 @@ class Screen:
         self.field_size = (self.board_x1 - self.board_x0)/8
 
     def _copy_game(self):
-        '''returns game progress in pgn forman'''
+        '''returns game progress in pgn format'''
         self._tap_screen(*self.menu)
         time.sleep(0.2)
         self._tap_screen(*self.save_game)
@@ -65,12 +65,11 @@ class Screen:
     def move(self, mov):
         """make a mov on a board specified in a string 'mov', i.e. 'e2e4'"""
         mov = mov.lower()    # make lower case
+        c = 'abcdefgh'
+        n = '12345678'
         if is_black:
-            c = 'abcdefgh'[::-1]
-            n = '12345678'[::-1]
-        else:
-            c = 'abcdefgh'
-            n = '12345678'
+            c = c[::-1]
+            n = n[::-1]
         # split mov to start and end positions
         start_pos_x = int(c.find(mov[0]) * self.field_size + self.field_size/2)
         start_pos_y = int(n.find(mov[1]) * self.field_size + self.field_size/2)
@@ -116,7 +115,11 @@ if __name__ == '__main__':
 
     s = Screen()
     # time.sleep(0.5)
-    answer = ''
+    if is_black:
+        answer = s.answer()
+        print(f"Magnu's move: {answer}")
+    else:
+        answer = ''
     while '#' not in answer:
         try:
             move = input('Your move: ')
@@ -125,7 +128,7 @@ if __name__ == '__main__':
             s.move(move)
             time.sleep(1)
             answer = s.answer()
-            print(f"Magnu's answer: {answer}")
+            print(f"Magnu's move: {answer}")
         except KeyboardInterrupt:
             print()
             sys.exit()
