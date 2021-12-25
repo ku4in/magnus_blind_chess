@@ -35,7 +35,6 @@ class Screen:
     close_menu = 80, 70     # position of a cross to close menu
     save_game = 550, 580    # position of 'save game' button in menu
     ok_button = 545, 1115   # position of 'OK' button
-
     game = ''               # The game in pgn notation will be stored here
 
     def __init__(self):
@@ -117,7 +116,7 @@ if __name__ == '__main__':
     # time.sleep(0.5)
     if is_black:
         answer = s.answer()
-        print(f"Magnu's move: {answer}")
+        print(f"Magnus' move: {answer}")
     else:
         answer = ''
     while '#' not in answer:
@@ -126,9 +125,9 @@ if __name__ == '__main__':
             # optional clear command to delete previous moves if you want to be absolute 'blind'
             # os.system('clear')
             s.move(move)
-            time.sleep(1)
+            time.sleep(2)
             answer = s.answer()
-            print(f"Magnu's move: {answer}")
+            print(f"Magnus' move: {answer}")
         except KeyboardInterrupt:
             print()
             sys.exit()
