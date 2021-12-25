@@ -35,6 +35,7 @@ class Screen:
     close_menu = 80, 70     # position of a cross to close menu
     save_game = 550, 580    # position of 'save game' button in menu
     ok_button = 545, 1115   # position of 'OK' button
+    back_button = 860, 1870 # position of 'back' button
     game = ''               # The game in pgn notation will be stored here
     TAP_SLEEP = 0.2         # Delay between taps
     MOVE_SLEEP = 2          # Delay after move (increase it if an error 'ILLEGAL MOVE' occurs when right move)
@@ -42,7 +43,7 @@ class Screen:
 
     def __init__(self):
         '''start 'Clipper' service to have access to clipboard'''
-        cmd = 'adb shell am startservice ca.zgrs.clipper/.ClipboardService &>/dev/null'
+        cmd = f'{ADB} shell am startservice ca.zgrs.clipper/.ClipboardService &>/dev/null'
         p = Popen(cmd.split())
         # set the size of a field on a chess board
         self.field_size = (self.board_x1 - self.board_x0)/8
@@ -75,6 +76,10 @@ class Screen:
     def move(self, mov):
         """make a mov on a board specified in a string 'mov', i.e. 'e2e4'"""
         mov = mov.lower()    # make lower case
+        if mov == 'back':
+            self._tap_screen(*self.back_button)
+            time.sleep(self.MOVE_SLEEP/2)
+            return
         c = 'abcdefgh'
         n = '12345678'
         if is_black:
@@ -123,11 +128,12 @@ if __name__ == '__main__':
     while '#' not in answer:
         try:
             move = input('Your move: ')
-            # optional clear command to delete previous moves if you want to be absolute 'blind'
+            # optional clear command to delete previous moves if you want to be completely 'blind'
             # os.system('clear')
             s.move(move)
-            answer = s.answer()
-            print(f"Magnus' move: {answer}")
+            if move != 'back':
+                answer = s.answer()
+                print(f"Magnus' move: {answer}")
         except KeyboardInterrupt:
             print()
             sys.exit()
