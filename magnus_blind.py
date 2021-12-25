@@ -39,12 +39,25 @@ class Screen:
     TAP_SLEEP = 0.2         # Delay between taps
     MOVE_SLEEP = 2          # Delay after move (increase it if an error 'ILLEGAL MOVE' occurs when right move)
 
+
     def __init__(self):
         '''start 'Clipper' service to have access to clipboard'''
         cmd = 'adb shell am startservice ca.zgrs.clipper/.ClipboardService &>/dev/null'
         p = Popen(cmd.split())
         # set the size of a field on a chess board
         self.field_size = (self.board_x1 - self.board_x0)/8
+        
+    def _tap_screen(self, x, y):
+        # screen coordinates start from left top of a screen and grow buttom and right
+        os.system(f'{ADB} shell input tap {x} {y}')
+        time.sleep(self.TAP_SLEEP)
+
+    def _tap_board(self, x, y):
+        # coordinates on a board start from a1 field and grow up and right
+        x += self.board_x0
+        y = self.board_y1 - y
+        os.system(f'{ADB} shell input tap {x} {y}')
+        time.sleep(self.TAP_SLEEP)
 
     def _copy_game(self):
         '''returns game progress in pgn format'''
@@ -85,17 +98,6 @@ class Screen:
             answer = new_game.split()[-2]
         self.game = new_game
         return answer
-        
-    def _tap_screen(self, x, y):
-        # screen coordinates start from left top of a screen and grow buttom and right
-        os.system(f'{ADB} shell input tap {x} {y}')
-        time.sleep(self.TAP_SLEEP)
-
-    def _tap_board(self, x, y):
-        # coordinates on a board start from a1 field and grow up and right
-        x += self.board_x0
-        y = self.board_y1 - y
-        os.system(f'{ADB} shell input tap {x} {y}')
 
 
 if __name__ == '__main__':
@@ -117,6 +119,7 @@ if __name__ == '__main__':
         print(f"Magnus' move: {answer}")
     else:
         answer = ''
+    # Loop untill mate
     while '#' not in answer:
         try:
             move = input('Your move: ')
