@@ -91,11 +91,11 @@ class Screen:
         return answer
         
     def _tap_screen(self, x, y):
-        # screen coordinates starts from left top of a screen and grow buttom and right
+        # screen coordinates start from left top of a screen and grow buttom and right
         os.system(f'{ADB} shell input tap {x} {y}')
 
     def _tap_board(self, x, y):
-        # coordinates on a board starts from a1 field and grow up and right
+        # coordinates on a board start from a1 field and grow up and right
         x += self.board_x0
         y = self.board_y1 - y
         os.system(f'{ADB} shell input tap {x} {y}')
@@ -113,8 +113,9 @@ if __name__ == '__main__':
         print('You play for black')
     else:
         print('You play for white')
+
     s = Screen()
-    time.sleep(0.5)
+    # time.sleep(0.5)
     answer = ''
     while '#' not in answer:
         try:
@@ -122,7 +123,7 @@ if __name__ == '__main__':
             # optional clear command to delete previous moves if you want to be absolute 'blind'
             # os.system('clear')
             s.move(move)
-            time.sleep(2)
+            time.sleep(1)
             answer = s.answer()
             print(f"Magnu's answer: {answer}")
         except KeyboardInterrupt:
