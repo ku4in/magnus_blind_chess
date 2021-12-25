@@ -36,6 +36,8 @@ class Screen:
     save_game = 550, 580    # position of 'save game' button in menu
     ok_button = 545, 1115   # position of 'OK' button
     game = ''               # The game in pgn notation will be stored here
+    TAP_SLEEP = 0.2         # Delay between taps
+    MOVE_SLEEP = 2          # Delay after move (increase it if an error 'ILLEGAL MOVE' occurs when right move)
 
     def __init__(self):
         '''start 'Clipper' service to have access to clipboard'''
@@ -47,13 +49,9 @@ class Screen:
     def _copy_game(self):
         '''returns game progress in pgn format'''
         self._tap_screen(*self.menu)
-        time.sleep(0.2)
         self._tap_screen(*self.save_game)
-        time.sleep(0.2)
         self._tap_screen(*self.ok_button)
-        time.sleep(0.2)
         self._tap_screen(*self.close_menu)
-        time.sleep(0.2)
         cmd = f'{ADB} shell am broadcast -a clipper.get'
         p = Popen(cmd.split(), stdin=PIPE, stdout=PIPE)
         out = p.stdout.read().decode('utf-8')
@@ -75,8 +73,8 @@ class Screen:
         end_pos_x   = int(c.find(mov[2]) * self.field_size + self.field_size/2)
         end_pos_y   = int(n.find(mov[3]) * self.field_size + self.field_size/2)
         self._tap_board(start_pos_x, start_pos_y)
-        time.sleep(0.2)
         self._tap_board(end_pos_x, end_pos_y)
+        time.sleep(self.MOVE_SLEEP)
 
     def answer(self):
         '''get last move of opponent'''
@@ -91,6 +89,7 @@ class Screen:
     def _tap_screen(self, x, y):
         # screen coordinates start from left top of a screen and grow buttom and right
         os.system(f'{ADB} shell input tap {x} {y}')
+        time.sleep(self.TAP_SLEEP)
 
     def _tap_board(self, x, y):
         # coordinates on a board start from a1 field and grow up and right
@@ -106,14 +105,13 @@ if __name__ == '__main__':
         if sys.argv[1] in ['-h', '--help']:
             help()
             sys.exit()
-        is_black = '-b' in sys.argv[1:][0].lower()
+        is_black = '-b' in sys.argv[1].lower()
     if is_black:
         print('You play for black')
     else:
         print('You play for white')
 
     s = Screen()
-    # time.sleep(0.5)
     if is_black:
         answer = s.answer()
         print(f"Magnus' move: {answer}")
@@ -125,7 +123,6 @@ if __name__ == '__main__':
             # optional clear command to delete previous moves if you want to be absolute 'blind'
             # os.system('clear')
             s.move(move)
-            time.sleep(2)
             answer = s.answer()
             print(f"Magnus' move: {answer}")
         except KeyboardInterrupt:
