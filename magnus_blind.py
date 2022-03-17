@@ -10,9 +10,10 @@ with Magnus app via clipboard.
 ADB = 'adb'   # path to 'adb' command in your system
 
 def help():
-    print(f'Usage: {sys.argv[0]} [-b | --black]')
+    print(f'Usage: {sys.argv[0]} [-b | --black] [-h | --help]')
     print()
-    print(f'       -b, --black: specify this parameter to play for black, you play for white by default')
+    print(f'  -b, --black: specify this parameter to play for black, you play for white by default')
+    print(f'  -h, --help:  show this help and exit')
     print()
 
 
@@ -27,18 +28,20 @@ class Screen:
 
     # parameters below are specific for each device
     # you should define them according to your screen resulution 
-    board_x0 = 0            # x coordinate (in pixel) of left top edge of a chess board on a screen
-    board_y0 = 412          # y coordinate (in pixel) of left top edge of a chess board on a screen
-    board_x1 = 1080         # x coordinate (in pixel) of right buttom edge of a chess board on a screen
-    board_y1 = 1492         # y coordinate (in pixel) of right buttom edge of a chess board on a screen
-    menu = 1000, 70         # menu button position on screen
-    close_menu = 80, 70     # position of a cross to close menu
-    save_game = 550, 580    # position of 'save game' button in menu
-    ok_button = 545, 1115   # position of 'OK' button
-    back_button = 860, 1870 # position of 'back' button
-    game = ''               # The game in pgn notation will be stored here
-    TAP_SLEEP = 0.2         # Delay between taps
-    MOVE_SLEEP = 2          # Delay after move (increase it if an error 'ILLEGAL MOVE' occurs when right move)
+    board_x0 = 0              # x coordinate (in pixel) of left top edge of a chess board on a screen
+    board_y0 = 412            # y coordinate (in pixel) of left top edge of a chess board on a screen
+    board_x1 = 1080           # x coordinate (in pixel) of right buttom edge of a chess board on a screen
+    board_y1 = 1492           # y coordinate (in pixel) of right buttom edge of a chess board on a screen
+    menu = 1000, 70           # menu button position on screen
+    close_menu = 80, 70       # position of a cross to close menu
+    save_game = 550, 580      # position of 'save game' button in menu
+    ok_button = 545, 1115     # position of 'OK' button
+    back_button = 860, 1870   # position of 'back' button
+    pawn = [(450, 830), (450, 1020),
+    (450, 1200), (450, 1380)] # positions of Queen, Rook, Bishop, Knight buttons for pawn replacement
+    game = ''                 # The game in pgn notation will be stored here
+    TAP_SLEEP = 0.2           # Delay between taps
+    MOVE_SLEEP = 3            # Delay after move (increase it if an error 'ILLEGAL MOVE' occurs when right move)
 
 
     def __init__(self):
@@ -82,6 +85,7 @@ class Screen:
             return
         c = 'abcdefgh'
         n = '12345678'
+        p = 'qrbk'
         if is_black:
             c = c[::-1]
             n = n[::-1]
@@ -92,6 +96,8 @@ class Screen:
         end_pos_y   = int(n.find(mov[3]) * self.field_size + self.field_size/2)
         self._tap_board(start_pos_x, start_pos_y)
         self._tap_board(end_pos_x, end_pos_y)
+        if mov[4:]:
+            self._tap_screen(*self.pawn[p.find(mov[4])])
         time.sleep(self.MOVE_SLEEP)
 
     def answer(self):
@@ -99,10 +105,11 @@ class Screen:
         new_game = self._copy_game()
         if new_game == self.game:
             answer = 'illegal move!'.upper()
+            state  = self.game.split()[-1]
         else:
-            answer = new_game.split()[-2]
+            answer, state = new_game.split()[-2:]
         self.game = new_game
-        return answer
+        return answer, state
 
 
 if __name__ == '__main__':
@@ -112,7 +119,7 @@ if __name__ == '__main__':
         if sys.argv[1] in ['-h', '--help']:
             help()
             sys.exit()
-        is_black = '-b' in sys.argv[1].lower()
+        is_black = '-b' in sys.argv[1]
     if is_black:
         print('You play for black')
     else:
@@ -120,20 +127,24 @@ if __name__ == '__main__':
 
     s = Screen()
     if is_black:
-        answer = s.answer()
+        answer, state = s.answer()
         print(f"Magnus' move: {answer}")
-    else:
-        answer = ''
+
     # Loop untill mate
-    while '#' not in answer:
+    while True:
         try:
             move = input('Your move: ')
             # optional clear command to delete previous moves if you want to be completely 'blind'
             # os.system('clear')
             s.move(move)
             if move != 'back':
-                answer = s.answer()
-                print(f"Magnus' move: {answer}")
+                answer, state = s.answer()
+                if '*' in state:
+                    print(f"Magnus' move: {answer}")
+                else:
+                    print(f"Last move: {answer}")
+                    print(f"Result: {state}")
+                    break
         except KeyboardInterrupt:
             print()
             sys.exit()
