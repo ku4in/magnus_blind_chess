@@ -38,7 +38,7 @@ class Screen:
     ok_button = 545, 1115     # position of 'OK' button
     back_button = 860, 1870   # position of 'back' button
     pawn = [(450, 830), (450, 1020),
-    (450, 1200), (450, 1380)] # positions of Queen, Rook, Bishop, Knight buttons for pawn replacement
+    (450, 1200), (450, 1380)] # positions of Queen, Rook, Bishop, kNight buttons for pawn replacement
     game = ''                 # The game in pgn notation will be stored here
     TAP_SLEEP = 0.2           # Delay between taps
     MOVE_SLEEP = 3            # Delay after move (increase it if an error 'ILLEGAL MOVE' occurs when right move)
@@ -85,7 +85,7 @@ class Screen:
             return
         c = 'abcdefgh'
         n = '12345678'
-        p = 'qrbk'
+        p = 'qrbn'
         if is_black:
             c = c[::-1]
             n = n[::-1]
