@@ -12,7 +12,7 @@ ADB = 'adb'   # path to 'adb' command in your system
 def help():
     print(f'Usage: {sys.argv[0]} [-b | --black] [-h | --help]')
     print()
-    print(f'  -b, --black: specify this parameter to play for black, you play for white by default')
+    print(f'  -b, --black: play with black pieces, you play with white by default')
     print(f'  -h, --help:  show this help and exit')
     print()
 
@@ -121,9 +121,9 @@ if __name__ == '__main__':
             sys.exit()
         is_black = '-b' in sys.argv[1]
     if is_black:
-        print('You play for black')
+        print('You play with black pieces')
     else:
-        print('You play for white')
+        print('You play with white pieces')
 
     s = Screen()
     if is_black:
